@@ -1,23 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-import Body from './components/Body'
-import ShopNowPage from './components/ShopNowPage'
-import {createBrowserRouter,RouterProvider,Outlet} from "react-router-dom";
-import HomePage from './components/Homepage'
-import AboutPage from './components/Aboutus'
-import Header from './components/Header'
-import Cart from './components/EmptyCartPage'
+import React from 'react';
+import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
+import { ReactLenis } from 'lenis/react';
 
+// Components
+import Header from './components/Header';
+import HomePage from './components/Homepage';
+import ShopNowPage from './components/ShopNowPage';
+import AboutPage from './components/Aboutus';
+import Cart from './components/EmptyCartPage';
 
 function Layout() {
   return (
-    <>
+    <ReactLenis root options={{ lerp: 0.05, smoothWheel: true }}>
       <Header />
-      <Outlet />
-    </>
+      <main className="w-full min-h-screen bg-neutral-50">
+        <Outlet />
+      </main>
+      <ScrollRestoration />
+    </ReactLenis>
   );
 }
 
@@ -26,31 +26,16 @@ const AppRouter = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: "Zenvy Apparel",
-        element: <ShopNowPage />,
-      },
-      {
-        path: "Aboutus",
-        element: <AboutPage />,
-      },
-      {
-        path: "Cart",
-        element: <Cart />,
-      },
+      { index: true, element: <HomePage /> },
+      { path: "zenvy-apparel", element: <ShopNowPage /> },
+      { path: "about-us", element: <AboutPage /> },
+      { path: "cart", element: <Cart /> },
     ],
   },
 ]);
-function App() {
 
-  return( 
-  
-  <>
-    
-  <RouterProvider router={AppRouter}/></>)
+function App() {
+  return <RouterProvider router={AppRouter} />;
 }
-export default App
+
+export default App;

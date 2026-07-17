@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from "react-router-dom";
 
+// GSAP Imports
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import backgroundVideo from '../assets/Background.mp4'
+
+// Register ScrollTrigger so GSAP knows how to track the scrollbar
+gsap.registerPlugin(ScrollTrigger);
 
 // Animation variants for reusability
 const fadeInUp = {
@@ -32,6 +40,42 @@ const imageReveal = {
 };
 
 const HomePage = () => {
+  // Refs for GSAP scroll tracking
+  const heroRef = useRef();
+  const videoRef = useRef();
+  
+  // NEW: Refs for Horizontal Scroll Section
+  const horizontalSectionRef = useRef();
+  const horizontalScrollRef = useRef();
+
+  useGSAP(() => {
+    // 1. GSAP Parallax effect for the video background
+    gsap.to(videoRef.current, {
+      yPercent: 30, // Pushes the video down smoothly as you scroll
+      ease: "none",
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true, // Ties the animation exactly to the mouse wheel
+      }
+    });
+
+    // 2. NEW: Pinned Horizontal Scroll Physics
+    const scrollContainer = horizontalScrollRef.current;
+    gsap.to(scrollContainer, {
+      x: () => -(scrollContainer.scrollWidth - window.innerWidth) + "px",
+      ease: "none",
+      scrollTrigger: {
+        trigger: horizontalSectionRef.current,
+        pin: true, // Freezes the section in place vertically
+        scrub: 1,  // Smooth scrubbing tied to the scroll wheel
+        end: () => "+=" + scrollContainer.scrollWidth, // Unpins when we reach the end of the cards
+      }
+    });
+    
+  }); // Removed scope so GSAP can target the whole page
+
   const categories = [
     { name: 'SHIRTS', image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&q=80&w=400' },
     { name: 'DENIM', image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=400' },
@@ -62,20 +106,29 @@ const HomePage = () => {
   return (
     <div className="w-full bg-white text-gray-800 font-sans overflow-hidden">
       
-      {/* 1. Hero Section (Animate on Load) */}
-      <section className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden bg-gray-900 flex items-center justify-center">
+      {/* 1. Hero Section */}
+      <section ref={heroRef} className="relative w-full h-screen overflow-hidden bg-gray-900 flex items-center justify-center">
+        
+        {/* Framer Motion handles the zoom-in on page load */}
         <motion.div 
           initial="hidden"
           animate="visible"
           variants={imageReveal}
           className="absolute inset-0 w-full h-full"
         >
-          <img 
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1800" 
-            alt="Zenvy Winter Era" 
-            className="w-full h-full object-cover object-center opacity-85"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-[#008ecc]/10" />
+          {/* GSAP handles the Parallax scroll movement on this inner div */}
+          <div ref={videoRef} className="absolute inset-0 w-full h-full">
+            <video
+              src={backgroundVideo} 
+              autoPlay
+              loop
+              muted
+              playsInline
+              alt="Zenvy Winter Era" 
+              className="w-full h-full object-cover object-top origin-top scale-[1.15] opacity-85"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-[#008ecc]/10" />
+          </div>
         </motion.div>
 
         {/* Content Box with stagger effects */}
@@ -87,7 +140,7 @@ const HomePage = () => {
         >
           <motion.span 
             variants={fadeInUp}
-            className="flex items-center gap-2 text-xs md:text-sm tracking-[0.2em] uppercase font-semibold text-[#008ecc] mb-4 bg-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-sm"
+            className="flex items-center gap-2 text-xs md:text-sm tracking-[0.2em] uppercase font-semibold text-[#F5F1E8] mb-4 bg-[#A05D46]/20 px-3.5 py-1.5 rounded-full backdrop-blur-sm border border-[#A05D46]/30 hover:bg-[#A05D46]/40 transition-colors duration-300"
           >
             <Sparkles size={14} className="animate-pulse" /> Winter Season '26
           </motion.span>
@@ -110,18 +163,40 @@ const HomePage = () => {
             variants={fadeInUp}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            className="group relative overflow-hidden bg-[#008ecc] text-white px-8 py-3.5 rounded-full text-xs font-semibold tracking-widest uppercase shadow-lg shadow-[#008ecc]/25 transition-colors duration-300 hover:bg-[#0076a8]"
+
+            className="group relative overflow-hidden bg-[#A05D46] text-[#F5F1E8] px-8 py-3.5 rounded-full text-xs font-semibold tracking-widest uppercase shadow-lg shadow-[#A05D46]/20 transition-colors duration-300 hover:bg-[#844935]"
           >
-           <Link to="/Zenvy Apparel"> <span className="relative z-10 flex items-center gap-2">
-              Shop Now <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </span></Link>
+           <Link to="/zenvy-apparel"> 
+             <span className="relative z-10 flex items-center gap-2">
+               Shop Now <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+             </span>
+           </Link>
           </motion.button>
         </motion.div>
       </section>
 
-      {/* 2. Shop by Category (Reveals as you scroll) */}
-      <section className="py-16 px-4 md:px-12 max-w-7xl mx-auto">
-        <motion.h2 
+      {/* 2. NEW: INFINITE MARQUEE */}
+      <div className="w-full py-6 md:py-8 bg-[#201811] overflow-hidden border-y border-[#FFFFFF]">
+        <motion.div 
+          animate={{ x: ["0%", "-50%"] }} 
+          transition={{ repeat: Infinity, ease: "linear", duration: 15 }}
+          className="whitespace-nowrap flex gap-8 md:gap-12"
+        >
+          {/* We use two identical text blocks so it loops seamlessly */}
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-white/90">
+            SUSTAINABLE FABRICS • PREMIUM COMFORT • ORGANIC COTTON • RADICAL CLARITY • SUSTAINABLE FABRICS •
+          </h1>
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter italic text-white/90">
+            SUSTAINABLE FABRICS • PREMIUM COMFORT • ORGANIC COTTON • RADICAL CLARITY • SUSTAINABLE FABRICS •
+          </h1>
+        </motion.div>
+      </div>
+
+      {/* 3. Shop by Category (Reveals as you scroll) */}
+      {/* 1. min-h-screen forces it to be at least the full height of the viewport */}
+{/* 2. Removed max-w-7xl and mx-auto so it spans the full width */}
+<section className="min-h-screen py-16 px-4 md:px-12 flex flex-col justify-center">
+  <motion.h2 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -131,83 +206,80 @@ const HomePage = () => {
           Shop by Category
         </motion.h2>
 
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6"
-        >
-          {categories.map((cat, idx) => (
-            <motion.div 
-              key={idx} 
-              variants={fadeInUp}
-              whileHover={{ y: -8 }}
-              className="group cursor-pointer flex flex-col items-center"
-            >
-              <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-[#f3f9fb] border border-gray-100 transition-all duration-300 group-hover:shadow-lg group-hover:border-[#008ecc]/20">
-                <img 
-                  src={cat.image} 
-                  alt={cat.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                />
-              </div>
-              <span className="mt-4 text-xs font-semibold tracking-wider text-gray-500 group-hover:text-[#008ecc] transition-colors duration-300">
-                {cat.name}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
+  {/* Added flex-grow to ensure the grid takes up available space */}
+  <motion.div 
+    variants={staggerContainer}
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+    className="grid grid-cols-2 md:grid-cols-6 gap-4 md:gap-6 w-full"
+  >
+    {categories.map((cat, idx) => (
+      <motion.div 
+        key={idx} 
+        variants={fadeInUp}
+        whileHover={{ y: -8 }}
+        className="group cursor-pointer flex flex-col items-center"
+      >
+        <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-white/5 border border-white/10 transition-all duration-300 group-hover:shadow-2xl">
+          <img 
+            src={cat.image} 
+            alt={cat.name} 
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        </div>
+        <span className="mt-4 text-xs font-semibold tracking-wider text-white/60 group-hover:text-white transition-colors duration-300">
+          {cat.name}
+        </span>
+      </motion.div>
+    ))}
+  </motion.div>
+</section>
 
-      {/* 3. Highlighted Collections (Smooth Cascade) */}
-      <section className="pb-20 px-4 md:px-12 max-w-7xl mx-auto">
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
+      {/* 4. NEW: PINNED HORIZONTAL COLLECTIONS */}
+      <section ref={horizontalSectionRef} className="h-screen w-full bg-[#201811] flex flex-col justify-center overflow-hidden">
+        <div className="px-12 mb-10">
+          <h2 className="text-3xl font-light text-white tracking-widest uppercase">
+            Curated Collections
+          </h2>
+        </div>
+
+        {/* The extremely wide container that GSAP pushes to the left */}
+        <div ref={horizontalScrollRef} className="flex gap-8 px-12 w-[300vw] md:w-[150vw]">
           {collections.map((item, idx) => (
-            <motion.div 
+            <div 
               key={idx} 
-              variants={fadeInUp}
-              className="group relative h-[500px] rounded-3xl overflow-hidden cursor-pointer shadow-sm"
+              className="group relative w-[80vw] md:w-[45vw] h-[60vh] shrink-0 rounded-[2rem] overflow-hidden cursor-pointer shadow-2xl"
             >
-              <div className="absolute inset-0 w-full h-full bg-gray-100 overflow-hidden">
-                <motion.img 
+              <div className="absolute inset-0 w-full h-full overflow-hidden">
+                <img 
                   src={item.image} 
                   alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>
 
-              <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-center text-center">
-                <h3 className="text-2xl md:text-3xl font-light text-white mb-6 tracking-wide">
+              <div className="absolute bottom-0 left-0 p-8 md:p-10 flex flex-col items-start z-10">
+                <h3 className="text-3xl md:text-5xl font-light text-white mb-6 tracking-wide">
                   {item.title}
                 </h3>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="bg-white text-gray-800 px-6 py-3 rounded-full text-xs font-semibold tracking-widest uppercase shadow-md transition-colors hover:bg-[#f3f9fb] hover:text-[#008ecc]"
-                >
+                <button className="bg-white text-gray-900 px-8 py-4 rounded-full text-xs font-bold tracking-widest uppercase shadow-xl transition-all hover:scale-105 hover:bg-[#008ecc] hover:text-white">
                   {item.buttonText}
-                </motion.button>
+                </button>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
-      {/* 4. Banner / Zoom Image Viewport Section */}
+      {/* 5. Banner / Zoom Image Viewport Section */}
       <motion.section 
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="px-4 md:px-12 pb-20 max-w-7xl mx-auto"
+        className="px-4 md:px-12 py-20 max-w-7xl mx-auto"
       >
         <div className="relative rounded-[2.5rem] overflow-hidden h-[300px] md:h-[400px] flex items-center justify-center group">
           <div className="absolute inset-0 w-full h-full">
