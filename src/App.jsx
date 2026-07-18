@@ -8,6 +8,7 @@ import HomePage from './components/Homepage';
 import ShopNowPage from './components/ShopNowPage';
 import AboutPage from './components/Aboutus';
 import Cart from './components/EmptyCartPage';
+import Wishlist from './components/Wishlist'
 
 function Layout() {
   return (
@@ -30,9 +31,9 @@ const AppRouter = createBrowserRouter([
       { path: "zenvy-apparel", element: <ShopNowPage /> },
       { path: "about-us", element: <AboutPage /> },
       { path: "cart", element: <Cart /> },
-    ],
+      {path:"wishlist",element:<Wishlist/>}],
   },
-]);
+]);;
 
 function App() {
   return <RouterProvider router={AppRouter} />;

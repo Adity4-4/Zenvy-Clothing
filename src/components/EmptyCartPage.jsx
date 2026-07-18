@@ -1,139 +1,182 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingBag, ArrowRight, Sparkles, Heart, ShoppingCart } from 'lucide-react';
+import { Trash2, Minus, Plus, ArrowRight, ShoppingBag } from 'lucide-react';
 
-const suggestedItems = [
-  { id: 1, name: "Premium Knit Sweater", category: "Sweaters", price: "$89", img: "https://images.unsplash.com/photo-1614975058789-41316d0e2e9c?auto=format&fit=crop&q=80&w=400" },
-  { id: 2, name: "Oversized Denim Jacket", category: "Outerwear", price: "$120", img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=400" },
-  { id: 3, name: "Classic Cotton Tee", category: "Tees", price: "$29", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=400" },
-  { id: 4, name: "Relaxed Linen Pants", category: "Pants", price: "$68", img: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&q=80&w=400" },
-];
+// Import the BackgroundLayer we extracted earlier to prevent flickering
+import { BackgroundCart } from '../components/BackgroundCart'; 
 
-const EmptyCartPage = () => {
+const CartPage = () => {
+  // Dummy data representing cart items (Replace with your actual state/context)
+  const cartItems = [
+    { 
+      id: 1, 
+      name: "Mens Casual Premium Slim Fit T-Shirts", 
+      price: 22.30, 
+      qty: 1, 
+      img: "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg", 
+      category: "Men's Wear" 
+    },
+    { 
+      id: 2, 
+      name: "Fjallraven - Foldsack No. 1 Backpack", 
+      price: 109.95, 
+      qty: 1, 
+      img: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg", 
+      category: "Men's Wear" 
+    }
+  ];
+
+  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-gray-800 font-sans pb-24">
-      {/* 1. Main Empty Cart State Hero */}
-      <section className="max-w-3xl mx-auto px-4 pt-20 pb-16 flex flex-col items-center text-center">
+    <div className="relative min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
+      
+      {/* 1. FIXED BACKGROUND LAYER */}
+      <BackgroundCart />
+
+      {/* 2. FOREGROUND CONTENT LAYER */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-12 pt-32 pb-24 flex flex-col min-h-screen">
         
-        {/* Animated Icon Canvas Container */}
-        <div className="relative w-48 h-48 bg-[#f3f9fb] rounded-full flex items-center justify-center border border-[#008ecc]/10 shadow-inner mb-8">
-          {/* Main Floating Cart Icon */}
-          <motion.div
-            animate={{ 
-              y: [0, -12, 0],
-              rotate: [0, -4, 4, 0]
-            }}
-            transition={{ 
-              duration: 4, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-            className="text-[#008ecc] z-10"
-          >
-            <ShoppingCart size={80} className="stroke-[1.2]" />
-          </motion.div>
-
-          {/* Sparkles / Background Accents */}
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="absolute top-8 right-8 text-amber-400"
-          >
-            <Sparkles size={20} fill="currentColor" />
-          </motion.div>
-
-          <motion.div 
-            animate={{ scale: [1, 0.8, 1], opacity: [0.3, 0.7, 0.3] }}
-            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-            className="absolute bottom-10 left-8 text-[#008ecc]/40"
-          >
-            <ShoppingBag size={24} />
-          </motion.div>
-        </div>
-
-        {/* Text Details */}
-        <h1 className="text-3xl font-light tracking-tight text-gray-900 mb-3">
-          Your Cart is Empty
-        </h1>
-        <p className="text-sm text-gray-500 font-light max-w-sm mb-8 leading-relaxed">
-          Looks like you haven't added anything to your Zenvy bag yet. Let's find something perfectly tailored for you.
-        </p>
-
-        {/* Dynamic Return Button */}
-        <motion.button 
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-          className="group relative overflow-hidden bg-[#008ecc] text-white px-8 py-3.5 rounded-full text-xs font-semibold tracking-widest uppercase shadow-lg shadow-[#008ecc]/20 transition-colors duration-300 hover:bg-[#0076a8]"
+        {/* Header Section */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="border-b border-white/20 pb-8 mb-12"
         >
-          <span className="relative z-10 flex items-center gap-2">
-            Start Shopping 
-            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-          </span>
-        </motion.button>
-      </section>
+          <h1 className="text-5xl md:text-7xl font-light tracking-tighter mb-4 flex items-center gap-4 drop-shadow-2xl">
+            Your Bag <ShoppingBag size={48} strokeWidth={1} className="text-[#A05D46]" />
+          </h1>
+          <p className="text-xs md:text-sm text-zinc-300 tracking-[0.3em] uppercase font-semibold drop-shadow-md">
+            {cartItems.length} Items / Carefully Curated
+          </p>
+        </motion.div>
 
-      {/* 2. Curated Suggestions Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-12 border-t border-gray-200/60 pt-16">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <span className="text-xs font-bold text-[#008ecc] tracking-widest uppercase block mb-1">
-              Handpicked Just For You
-            </span>
-            <h2 className="text-xl md:text-2xl font-light text-gray-800 tracking-tight">
-              Trending Closets
-            </h2>
+        {/* Cart Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          
+          {/* LEFT COLUMN: Cart Items */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {cartItems.length === 0 ? (
+              <div className="text-white/60 text-sm tracking-widest uppercase py-12">
+                Your bag is currently empty.
+              </div>
+            ) : (
+              cartItems.map((item, index) => (
+                <motion.div 
+                  key={item.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-[2rem] p-4 pr-6 flex flex-col sm:flex-row gap-6 items-center shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+                >
+                  {/* Product Image with Blend Mode Trick */}
+                  <div className="w-full sm:w-32 aspect-[3/4] bg-[#f8f8f8] rounded-xl p-4 overflow-hidden shrink-0 border border-gray-100">
+                    <img 
+                      src={item.img} 
+                      alt={item.name}
+                      className="w-full h-full object-contain mix-blend-multiply"
+                    />
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="flex-1 flex flex-col w-full">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">
+                        {item.category}
+                      </span>
+                      <p className="text-lg font-bold text-zinc-900 hidden sm:block">
+                        ${item.price.toFixed(2)}
+                      </p>
+                    </div>
+                    
+                    <h3 className="text-sm font-medium text-zinc-800 line-clamp-2 leading-relaxed mb-6">
+                      {item.name}
+                    </h3>
+
+                    {/* Controls */}
+                    <div className="flex items-center justify-between mt-auto">
+                      {/* Premium Quantity Toggle */}
+                      <div className="flex items-center gap-4 bg-zinc-100 rounded-full px-4 py-2 border border-zinc-200">
+                        <button className="text-zinc-400 hover:text-black transition-colors">
+                          <Minus size={14} strokeWidth={3} />
+                        </button>
+                        <span className="text-xs font-bold text-zinc-900 w-4 text-center">
+                          {item.qty}
+                        </span>
+                        <button className="text-zinc-400 hover:text-black transition-colors">
+                          <Plus size={14} strokeWidth={3} />
+                        </button>
+                      </div>
+
+                      {/* Remove Button */}
+                      <button className="text-zinc-400 hover:text-[#A05D46] transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                        <Trash2 size={16} /> <span className="hidden sm:inline">Remove</span>
+                      </button>
+
+                      {/* Mobile Price */}
+                      <p className="text-lg font-bold text-zinc-900 sm:hidden">
+                        ${item.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
-          <button className="text-xs font-semibold tracking-wider text-[#008ecc] hover:text-[#0076a8] flex items-center gap-1 group transition-colors">
-            View All <ArrowRight size={12} className="transition-transform group-hover:translate-x-0.5" />
-          </button>
-        </div>
 
-        {/* Product Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {suggestedItems.map((item) => (
-            <motion.div
-              key={item.id}
-              whileHover={{ y: -6 }}
-              className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-            >
-              {/* Product Frame Image */}
-              <div className="relative aspect-[3/4] bg-[#f3f9fb] overflow-hidden">
-                <img 
-                  src={item.img} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                
-                {/* Wishlist Icon */}
-                <button className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm text-gray-400 hover:text-rose-500 rounded-full shadow-sm active:scale-90 transition-all">
-                  <Heart size={14} />
-                </button>
-              </div>
-
-              {/* Text Details Area */}
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider block mb-0.5">
-                    {item.category}
-                  </span>
-                  <h3 className="text-xs md:text-sm font-semibold text-gray-700 truncate group-hover:text-[#008ecc] transition-colors">
-                    {item.name}
-                  </h3>
+          {/* RIGHT COLUMN: Order Summary (Glassmorphism) */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="lg:col-span-4 sticky top-32"
+          >
+            <div className="bg-[#A05D46]/20 backdrop-blur-xl border border-[#A05D46]/30 rounded-[2rem] p-8 shadow-2xl shadow-black/50">
+              <h2 className="text-xs tracking-[0.3em] uppercase font-bold text-[#F5F1E8] mb-8">
+                Order Summary
+              </h2>
+              
+              <div className="flex flex-col gap-5 text-sm text-[#F5F1E8]/80 border-b border-[#A05D46]/30 pb-6 mb-6 font-medium">
+                <div className="flex justify-between items-center">
+                  <span>Subtotal</span>
+                  <span className="text-[#F5F1E8]">${subtotal.toFixed(2)}</span>
                 </div>
-
-                <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-50">
-                  <span className="text-sm font-bold text-gray-950">{item.price}</span>
-                  <button className="p-1.5 bg-[#f3f9fb] text-[#008ecc] hover:bg-[#008ecc] hover:text-white rounded-xl text-xs font-bold transition-all duration-300">
-                    <ShoppingBag size={14} />
-                  </button>
+                <div className="flex justify-between items-center">
+                  <span>Estimated Shipping</span>
+                  <span className="text-[#F5F1E8]">Complimentary</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Taxes</span>
+                  <span className="text-[#F5F1E8]/50 text-xs">Calculated at checkout</span>
                 </div>
               </div>
-            </motion.div>
-          ))}
+
+              <div className="flex justify-between items-end mb-8">
+                <span className="text-sm font-bold tracking-widest uppercase text-[#F5F1E8]">Total</span>
+                <span className="text-3xl font-light tracking-tighter text-[#F5F1E8]">
+                  ${subtotal.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Terracotta Action Button */}
+              <button className="w-full group relative overflow-hidden bg-[#A05D46] text-[#F5F1E8] px-8 py-4 rounded-full text-xs font-semibold tracking-widest uppercase shadow-lg shadow-[#A05D46]/20 transition-colors duration-300 hover:bg-[#844935] flex justify-center items-center gap-3">
+                Secure Checkout 
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+
+              <div className="mt-6 text-center">
+                <p className="text-[10px] uppercase tracking-widest text-[#F5F1E8]/50">
+                  Carbon Neutral Delivery
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
         </div>
-      </section>
+      </div>
     </div>
   );
 };
 
-export default EmptyCartPage;
+export default CartPage;
